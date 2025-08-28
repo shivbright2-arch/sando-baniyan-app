@@ -1,0 +1,126 @@
+<script type="text/javascript">
+        var gk_isXlsx = false;
+        var gk_xlsxFileLookup = {};
+        var gk_fileData = {};
+        function filledCell(cell) {
+          return cell !== '' && cell != null;
+        }
+        function loadFileData(filename) {
+        if (gk_isXlsx && gk_xlsxFileLookup[filename]) {
+            try {
+                var workbook = XLSX.read(gk_fileData[filename], { type: 'base64' });
+                var firstSheetName = workbook.SheetNames[0];
+                var worksheet = workbook.Sheets[firstSheetName];
+
+                // Convert sheet to JSON to filter blank rows
+                var jsonData = XLSX.utils.sheet_to_json(worksheet, { header: 1, blankrows: false, defval: '' });
+                // Filter out blank rows (rows where all cells are empty, null, or undefined)
+                var filteredData = jsonData.filter(row => row.some(filledCell));
+
+                // Heuristic to find the header row by ignoring rows with fewer filled cells than the next row
+                var headerRowIndex = filteredData.findIndex((row, index) =>
+                  row.filter(filledCell).length >= filteredData[index + 1]?.filter(filledCell).length
+                );
+                // Fallback
+                if (headerRowIndex === -1 || headerRowIndex > 25) {
+                  headerRowIndex = 0;
+                }
+
+                // Convert filtered JSON back to CSV
+                var csv = XLSX.utils.aoa_to_sheet(filteredData.slice(headerRowIndex)); // Create a new sheet from filtered array of arrays
+                csv = XLSX.utils.sheet_to_csv(csv, { header: 1 });
+                return csv;
+            } catch (e) {
+                console.error(e);
+                return "";
+            }
+        }
+        return gk_fileData[filename] || "";
+        }
+        </script><!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sando Baniyan Preference</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 600px;
+            margin: 20px auto;
+            padding: 20px;
+            text-align: center;
+        }
+        img {
+            max-width: 100%;
+            height: auto;
+            margin-bottom: 20px;
+            border: 2px solid #ccc;
+        }
+        .input-group {
+            margin: 20px 0;
+            font-size: 18px;
+        }
+        .radio-group {
+            margin: 20px 0;
+        }
+        input[type="radio"] {
+            margin: 0 10px;
+        }
+        button {
+            padding: 10px 20px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+        #output {
+            margin-top: 20px;
+            font-weight: bold;
+            color: #333;
+        }
+        a {
+            color: #0066cc;
+            text-decoration: none;
+        }
+        a:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    <h1>Sando Baniyan with Printed Design</h1>
+    <img src="https://www.omoxofashion.co.in/ProductImages/l-1-yo-yo-honey-singh-omoxo-fashion-designs-original-imah5fbqs8vnjvzf.webp" alt="Sando Baniyan with Printed Design">
+    <div class="input-group">
+        <p>Kya aapko ye sando baniyan pasand hai?</p>
+        <div class="radio-group">
+            <input type="radio" id="yes" name="preference" value="yes">
+            <label for="yes">Yes</label>
+            <input type="radio" id="no" name="preference" value="no">
+            <label for="no">No</label>
+        </div>
+    </div>
+    <button onclick="showResult()">Submit</button>
+    <div id="output"></div>
+
+    <script>
+        function showResult() {
+            const preference = document.querySelector('input[name="preference"]:checked');
+            const output = document.getElementById('output');
+
+            if (preference) {
+                if (preference.value === 'yes') {
+                    output.innerHTML = 'Click here: <a href="http://www.omoxofashion.co.in" target="_blank">www.example.com</a>';
+                } else {
+                    output.innerHTML = 'Thank you for your response!';
+                }
+            } else {
+                alert('Please select Yes or No.');
+            }
+        }
+    </script>
+</body>
+</html>
